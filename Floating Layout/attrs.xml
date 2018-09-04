@@ -1,0 +1,4 @@
+<declare-styleable name="FloatingLayout">
+        <attr name="flElevation" format="dimension"/>
+        <attr name="flColor" format="color"/>
+</declare-styleable>
