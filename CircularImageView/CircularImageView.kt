@@ -1,293 +1,276 @@
-
-
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.v7.widget.AppCompatImageView;
-import android.util.AttributeSet;
-import android.util.Log;
-
+import android.content.Context
+import android.content.res.TypedArray
+import android.graphics.Bitmap
+import android.graphics.BitmapShader
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.Shader
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.support.v7.widget.AppCompatImageView
+import android.util.AttributeSet
+import android.util.Log
+import android.view.View
+import android.widget.ImageView
+import com.faraz.app.producthunt.R
 
 
 /**
- * Created by Faraz on 28/4/18.
+ * Created by root on 10/9/18.
  */
 
-public class CircularImageView extends AppCompatImageView {
-
-    private static final ScaleType SCALE_TYPE = ScaleType.CENTER_CROP;
-
-    // Default Values
-    private static final float DEFAULT_BORDER_WIDTH = 1;
-    private static final float DEFAULT_SHADOW_RADIUS = 1;
+class CircularImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatImageView(context, attrs, defStyleAttr) {
 
     // Properties
-    private float borderWidth;
-    private int canvasSize;
-    private float shadowRadius;
-    private int shadowColor = Color.BLACK;
+    private var borderWidth: Float = 0.toFloat()
+    private var canvasSize: Int = 0
+    private var shadowRadius: Float = 0.toFloat()
+    private var shadowColor = Color.BLACK
 
     // Object used to draw
-    private Bitmap image;
-    private Drawable drawable;
-    private Paint paint;
-    private Paint paintBorder;
+    private var image: Bitmap? = null
 
-    //region Constructor & Init Method
-    public CircularImageView(final Context context) {
-        this(context, null);
+    private var paint: Paint? = null
+    private var paintBorder: Paint? = null
+
+    init {
+        init(context, attrs, defStyleAttr)
     }
 
-    public CircularImageView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public CircularImageView(Context context, AttributeSet attrs, int defStyleAttr) {
-
-        super(context, attrs, defStyleAttr);
-        init(context, attrs, defStyleAttr);
-    }
-
-    private void init(Context context, AttributeSet attrs, int defStyleAttr) {
+    private fun init(context: Context, attrs: AttributeSet?, defStyleAttr: Int) {
         // Init paint
-        paint = new Paint();
-        paint.setAntiAlias(true);
+        paint = Paint()
+        paint!!.isAntiAlias = true
 
-        paintBorder = new Paint();
-        paintBorder.setAntiAlias(true);
+        paintBorder = Paint()
+        paintBorder!!.isAntiAlias = true
 
         // Load the styled attributes and set their properties
-        TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CircularImageView, defStyleAttr, 0);
+        val attributes = context.obtainStyledAttributes(attrs, R.styleable.CircularImageView, defStyleAttr, 0)
 
         // Init Border
         if (attributes.getBoolean(R.styleable.CircularImageView_civ_border, true)) {
-            float defaultBorderSize = DEFAULT_BORDER_WIDTH * getContext().getResources().getDisplayMetrics().density;
-            setBorderWidth(attributes.getDimension(R.styleable.CircularImageView_civ_border_width, defaultBorderSize));
-            setBorderColor(attributes.getColor(R.styleable.CircularImageView_civ_border_color, Color.WHITE));
+            val defaultBorderSize = DEFAULT_BORDER_WIDTH * getContext().resources.displayMetrics.density
+            setBorderWidth(attributes.getDimension(R.styleable.CircularImageView_civ_border_width, defaultBorderSize))
+            setBorderColor(attributes.getColor(R.styleable.CircularImageView_civ_border_color, Color.WHITE))
         }
 
         // Init Shadow
         if (attributes.getBoolean(R.styleable.CircularImageView_civ_shadow, false)) {
-            shadowRadius = DEFAULT_SHADOW_RADIUS;
-            drawShadow(attributes.getFloat(R.styleable.CircularImageView_civ_shadow_radius, shadowRadius), attributes.getColor(R.styleable.CircularImageView_civ_shadow_color, shadowColor));
+            shadowRadius = DEFAULT_SHADOW_RADIUS
+            drawShadow(attributes.getFloat(R.styleable.CircularImageView_civ_shadow_radius, shadowRadius), attributes.getColor(R.styleable.CircularImageView_civ_shadow_color, shadowColor))
         }
     }
     //endregion
 
     //region Set Attr Method
-    public void setBorderWidth(float borderWidth) {
-        this.borderWidth = borderWidth;
-        requestLayout();
-        invalidate();
+    fun setBorderWidth(borderWidth: Float) {
+        this.borderWidth = borderWidth
+        requestLayout()
+        invalidate()
     }
 
-    public void setBorderColor(int borderColor) {
+    fun setBorderColor(borderColor: Int) {
         if (paintBorder != null)
-            paintBorder.setColor(borderColor);
-        invalidate();
+            paintBorder!!.color = borderColor
+        invalidate()
     }
 
-    public void addShadow() {
-        if (shadowRadius == 0)
-            shadowRadius = DEFAULT_SHADOW_RADIUS;
-        drawShadow(shadowRadius, shadowColor);
-        invalidate();
+    fun addShadow() {
+        if (shadowRadius == 0f)
+            shadowRadius = DEFAULT_SHADOW_RADIUS
+        drawShadow(shadowRadius, shadowColor)
+        invalidate()
     }
 
-    public void setShadowRadius(float shadowRadius) {
-        drawShadow(shadowRadius, shadowColor);
-        invalidate();
+    fun setShadowRadius(shadowRadius: Float) {
+        drawShadow(shadowRadius, shadowColor)
+        invalidate()
     }
 
-    public void setShadowColor(int shadowColor) {
-        drawShadow(shadowRadius, shadowColor);
-        invalidate();
+    fun setShadowColor(shadowColor: Int) {
+        drawShadow(shadowRadius, shadowColor)
+        invalidate()
     }
 
-    @Override
-    public ScaleType getScaleType() {
-        return SCALE_TYPE;
+    override fun getScaleType(): ImageView.ScaleType {
+        return SCALE_TYPE
     }
 
-    @Override
-    public void setScaleType(ScaleType scaleType) {
+    override fun setScaleType(scaleType: ImageView.ScaleType) {
         if (scaleType != SCALE_TYPE) {
-            throw new IllegalArgumentException(String.format("ScaleType %s not supported. ScaleType.CENTER_CROP is used by default. So you don't need to use ScaleType.", scaleType));
+            throw IllegalArgumentException(String.format("ScaleType %s not supported. ScaleType.CENTER_CROP is used by default. So you don't need to use ScaleType.", scaleType))
         }
     }
     //endregion
 
     //region Draw Method
-    @Override
-    public void onDraw(Canvas canvas) {
+    public override fun onDraw(canvas: Canvas) {
         // Load the bitmap
-        loadBitmap();
+        loadBitmap()
 
         // Check if image isn't null
         if (image == null)
-            return;
+            return
 
-        if (!isInEditMode()) {
-            canvasSize = canvas.getWidth();
-            if (canvas.getHeight() < canvasSize) {
-                canvasSize = canvas.getHeight();
+        if (!isInEditMode) {
+            canvasSize = canvas.width
+            if (canvas.height < canvasSize) {
+                canvasSize = canvas.height
             }
         }
 
-        int circleCenter = (int) (canvasSize - (borderWidth * 2)) / 2;
+        val circleCenter = (canvasSize - borderWidth * 2).toInt() / 2
         // Draw Border
-        canvas.drawCircle(circleCenter + borderWidth, circleCenter + borderWidth, circleCenter + borderWidth - (shadowRadius + shadowRadius / 2), paintBorder);
+        canvas.drawCircle(circleCenter + borderWidth, circleCenter + borderWidth, circleCenter + borderWidth - (shadowRadius + shadowRadius / 2), paintBorder!!)
         // Draw CircularImageView
-        canvas.drawCircle(circleCenter + borderWidth, circleCenter + borderWidth, circleCenter - (shadowRadius + shadowRadius / 2), paint);
+        canvas.drawCircle(circleCenter + borderWidth, circleCenter + borderWidth, circleCenter - (shadowRadius + shadowRadius / 2), paint!!)
     }
 
-    private void loadBitmap() {
-        if (this.drawable == getDrawable())
-            return;
-
-        this.drawable = getDrawable();
-        this.image = drawableToBitmap(this.drawable);
-        updateShader();
+    private fun loadBitmap() {
+        this.image = drawableToBitmap(drawable)
+        updateShader()
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        canvasSize = w;
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        canvasSize = w
         if (h < canvasSize)
-            canvasSize = h;
+            canvasSize = h
         if (image != null)
-            updateShader();
+            updateShader()
     }
 
-    private void drawShadow(float shadowRadius, int shadowColor) {
-        this.shadowRadius = shadowRadius;
-        this.shadowColor = shadowColor;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-            setLayerType(LAYER_TYPE_SOFTWARE, paintBorder);
-        }
-        paintBorder.setShadowLayer(shadowRadius, 0.0f, shadowRadius / 2, shadowColor);
+    private fun drawShadow(shadowRadius: Float, shadowColor: Int) {
+        this.shadowRadius = shadowRadius
+        this.shadowColor = shadowColor
+        setLayerType(View.LAYER_TYPE_SOFTWARE, paintBorder)
+
+        paintBorder!!.setShadowLayer(shadowRadius, 0.0f, shadowRadius / 2, shadowColor)
     }
 
-    private void updateShader() {
+    private fun updateShader() {
         if (image == null)
-            return;
+            return
 
         // Crop Center Image
-        image = cropBitmap(image);
+        image = cropBitmap(image!!)
 
         // Create Shader
-        BitmapShader shader = new BitmapShader(image, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        val shader = BitmapShader(image!!, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
 
         // Center Image in Shader
-        Matrix matrix = new Matrix();
-        matrix.setScale((float) canvasSize / (float) image.getWidth(), (float) canvasSize / (float) image.getHeight());
-        shader.setLocalMatrix(matrix);
+        val matrix = Matrix()
+        matrix.setScale(canvasSize.toFloat() / image!!.width.toFloat(), canvasSize.toFloat() / image!!.height.toFloat())
+        shader.setLocalMatrix(matrix)
 
         // Set Shader in Paint
-        paint.setShader(shader);
+        paint!!.shader = shader
     }
 
-    private Bitmap cropBitmap(Bitmap bitmap) {
-        Bitmap bmp;
-        if (bitmap.getWidth() >= bitmap.getHeight()) {
+    private fun cropBitmap(bitmap: Bitmap): Bitmap {
+        val bmp: Bitmap
+        if (bitmap.width >= bitmap.height) {
             bmp = Bitmap.createBitmap(
                     bitmap,
-                    bitmap.getWidth() / 2 - bitmap.getHeight() / 2,
+                    bitmap.width / 2 - bitmap.height / 2,
                     0,
-                    bitmap.getHeight(), bitmap.getHeight());
+                    bitmap.height, bitmap.height)
         } else {
             bmp = Bitmap.createBitmap(
                     bitmap,
                     0,
-                    bitmap.getHeight() / 2 - bitmap.getWidth() / 2,
-                    bitmap.getWidth(), bitmap.getWidth());
+                    bitmap.height / 2 - bitmap.width / 2,
+                    bitmap.width, bitmap.width)
         }
-        return bmp;
+        return bmp
     }
 
-    private Bitmap drawableToBitmap(Drawable drawable) {
+    private fun drawableToBitmap(drawable: Drawable?): Bitmap? {
         if (drawable == null) {
-            return null;
-        } else if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
+            return null
+        } else if (drawable is BitmapDrawable) {
+            return drawable.bitmap
         }
 
-        int intrinsicWidth = drawable.getIntrinsicWidth();
-        int intrinsicHeight = drawable.getIntrinsicHeight();
+        val intrinsicWidth = drawable.intrinsicWidth
+        val intrinsicHeight = drawable.intrinsicHeight
 
         if (!(intrinsicWidth > 0 && intrinsicHeight > 0))
-            return null;
+            return null
 
         try {
             // Create Bitmap object out of the drawable
-            Bitmap bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            drawable.draw(canvas);
-            return bitmap;
-        } catch (OutOfMemoryError e) {
+            val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+            return bitmap
+        } catch (e: OutOfMemoryError) {
             // Simply return null of failed bitmap creations
-            Log.e(getClass().toString(), "Encountered OutOfMemoryError while generating bitmap!");
-            return null;
+            Log.e(javaClass.toString(), "Encountered OutOfMemoryError while generating bitmap!")
+            return null
         }
+
     }
     //endregion
 
     //region Mesure Method
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width = measureWidth(widthMeasureSpec);
-        int height = measureHeight(heightMeasureSpec);
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val width = measureWidth(widthMeasureSpec)
+        val height = measureHeight(heightMeasureSpec)
         /*int imageSize = (width < height) ? width : height;
         setMeasuredDimension(imageSize, imageSize);*/
-        setMeasuredDimension(width, height);
+        setMeasuredDimension(width, height)
     }
 
-    private int measureWidth(int measureSpec) {
-        int result;
-        int specMode = MeasureSpec.getMode(measureSpec);
-        int specSize = MeasureSpec.getSize(measureSpec);
+    private fun measureWidth(measureSpec: Int): Int {
+        val result: Int
+        val specMode = View.MeasureSpec.getMode(measureSpec)
+        val specSize = View.MeasureSpec.getSize(measureSpec)
 
-        if (specMode == MeasureSpec.EXACTLY) {
+        if (specMode == View.MeasureSpec.EXACTLY) {
             // The parent has determined an exact size for the child.
-            result = specSize;
-        } else if (specMode == MeasureSpec.AT_MOST) {
+            result = specSize
+        } else if (specMode == View.MeasureSpec.AT_MOST) {
             // The child can be as large as it wants up to the specified size.
-            result = specSize;
+            result = specSize
         } else {
             // The parent has not imposed any constraint on the child.
-            result = canvasSize;
+            result = canvasSize
         }
 
-        return result;
+        return result
     }
 
-    private int measureHeight(int measureSpecHeight) {
-        int result;
-        int specMode = MeasureSpec.getMode(measureSpecHeight);
-        int specSize = MeasureSpec.getSize(measureSpecHeight);
+    private fun measureHeight(measureSpecHeight: Int): Int {
+        val result: Int
+        val specMode = View.MeasureSpec.getMode(measureSpecHeight)
+        val specSize = View.MeasureSpec.getSize(measureSpecHeight)
 
-        if (specMode == MeasureSpec.EXACTLY) {
+        if (specMode == View.MeasureSpec.EXACTLY) {
             // We were told how big to be
-            result = specSize;
-        } else if (specMode == MeasureSpec.AT_MOST) {
+            result = specSize
+        } else if (specMode == View.MeasureSpec.AT_MOST) {
             // The child can be as large as it wants up to the specified size.
-            result = specSize;
+            result = specSize
         } else {
             // Measure the text (beware: ascent is a negative number)
-            result = canvasSize;
+            result = canvasSize
         }
 
-        return (result + 2);
+        return result + 2
+    }
+
+    companion object {
+
+        private val SCALE_TYPE = ImageView.ScaleType.CENTER_CROP
+
+        // Default Values
+        private val DEFAULT_BORDER_WIDTH = 10f
+        private val DEFAULT_SHADOW_RADIUS = 8.0f
     }
     //endregion
 }
